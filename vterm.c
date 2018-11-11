@@ -37,6 +37,11 @@ void vt_nsend (char* seq, int len)
     }
 }
 
+/* A note on the usage of char* here as opposed to int:
+ * Ultimately since communication with the terminal is done entirely through ASCII data,
+ * any integer value must eventually be converted to one or more ASCII characters before
+ * being sent. Therefore, rather than convert integers to characters within these functions,
+ * it is left up to the user to decide when and where to convert them, if necessary at all. */
 void vt_move_cursor_up (char* units)
 {
     char* cursor_command = (char*) calloc(1, 10);
@@ -336,11 +341,10 @@ vt_vec2* vt_get_cursor_pos (void)
 
 vt_vec2* vt_get_screen_size (void)
 {
-    /*  There is no actual ANSI/ISO/VT-100 escape sequence to get the size of the terminal 
-     *  screen, and this library can't rely on an OS to exist to provide ioctl, so this
-     *  function just cheats the old fashioned way by telling the cursor to go to position
-     *  (999,999) then asking where the cursor actually ended up.
-     */
+    /* There is no actual ANSI/ISO/VT-100 escape sequence to get the size of the terminal 
+     * screen, and this library can't rely on an OS to exist to provide ioctl, so this
+     * function just cheats the old fashioned way by telling the cursor to go to position
+     * (999,999) then asking where the cursor actually ended up. */
 
     char *old_x = (char*) calloc(1, 10);
     char *old_y = (char*) calloc(1, 10);
@@ -364,7 +368,7 @@ vt_vec2* vt_get_screen_size (void)
 void vt_backspace (void)
 {
     /* Simulate a backspace by setting the cursor back one space, sending a blank space to the
-       output file stream, then sending the cursor back a space again. */
+     * output file stream, then sending the cursor back a space again. */
 
     vt_nsend("[1D", 3);
     putc(' ', out);

@@ -16,9 +16,8 @@ typedef struct
 
 void vt_init (FILE *input, FILE *output); /* can be called any time */
 
-/*  The following two functions can be used to send any commands not wrapped in functions by 
- *  this library. 
- */
+/* The following two functions can be used to send any commands not wrapped in functions by 
+ * this library. */
 void vt_send (char *seq);
 void vt_nsend (char *seq, int len);
 
@@ -45,7 +44,7 @@ void vt_setcolor_8bit_fg (char* fg_code);
 void vt_setcolor_8bit_bg (char* bg_code);
 void vt_setcolor_8bit (char* fg_code, char* bg_code);
 
-/* 24-bit RGB color usually isn't supported */
+/* Note: 24-bit RGB color usually isn't supported */
 void vt_setcolor_tru_fg (char* r, char* b, char* g);
 void vt_setcolor_tru_bg (char* r, char* b, char* g);
 void vt_setcolor_tru (char* r_fg, char* r_bg, char* g_fg, char* g_bg, char* b_fg, char* b_bg);
