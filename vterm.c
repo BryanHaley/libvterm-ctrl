@@ -37,13 +37,16 @@ void vt_nsend (char* seq, int len)
     }
 }
 
-/* A note on the usage of char* here as opposed to int:
- * Ultimately since communication with the terminal is done entirely through ASCII data,
- * any integer value must eventually be converted to one or more ASCII characters before
- * being sent. Therefore, rather than convert integers to characters within these functions,
- * it is left up to the user to decide when and where to convert them, if necessary at all. */
+
 void vt_move_cursor_up (char* units)
-{
+{   
+    /* A note on the usage of char* here as opposed to int:
+    * Ultimately since communication with the terminal is done
+    * entirely through ASCII data, any integer value must eventually 
+    * be converted to one or more ASCII characters before
+    * being sent. Therefore, rather than convert integers to 
+    * characters within these functions, it is left up to the user
+    * to decide when and where to convert them, if necessary at all. */
     char* cursor_command = (char*) calloc(1, 10);
 
     strncat(cursor_command, "[", 2);
