@@ -330,6 +330,7 @@ void vt_reset_text_attributes (void)
     vt_nsend("[0m", 3);
 }
 
+/* TODO: fix this. only half works on nix */
 vt_vec2* vt_get_cursor_pos (void)
 {
     char esc = 0;
@@ -398,6 +399,7 @@ vt_vec2* vt_get_cursor_pos (void)
     return cursor_pos;
 }
 
+/* TODO: fix this. Segfaults on nix */
 vt_vec2* vt_get_screen_size (void)
 {
     /* There is no actual ANSI/ISO/VT-100 escape sequence to get the size of the terminal 
@@ -405,8 +407,8 @@ vt_vec2* vt_get_screen_size (void)
      * function just cheats the old fashioned way by telling the cursor to go to position
      * (999,999) then asking where the cursor actually ended up. */
 
-    char old_x[12] = {0};
-    char old_y[12] = {0};
+    char old_x[15] = {0};
+    char old_y[15] = {0};
     vt_vec2 *old_pos = vt_get_cursor_pos();
     vt_vec2 *new_pos = NULL;
 
@@ -416,8 +418,8 @@ vt_vec2* vt_get_screen_size (void)
     /*itoa(old_pos->x, old_x, 10);
     itoa(old_pos->y, old_y, 10);*/
 
-    snprintf(old_x, 12, "%d", old_pos->x);
-    snprintf(old_y, 12, "%d", old_pos->y);
+    sprintf(old_x, "%d", old_pos->x);
+    sprintf(old_y, "%d", old_pos->y);
 
     vt_move_cursor_xy(old_x, old_y);
     free (old_pos); old_pos = NULL;
