@@ -32,7 +32,7 @@ void vt_nsend (char* seq, int len)
 
     for (i = 0; i < len; i++)
     { 
-        if (seq[i] == 0) { break; }
+        if (seq[i] == '\0') { break; }
         putc(seq[i], out);
     }
 }
@@ -47,64 +47,79 @@ void vt_move_cursor_up (char* units)
     * being sent. Therefore, rather than convert integers to 
     * characters within these functions, it is left up to the user
     * to decide when and where to convert them, if necessary at all. */
-    char* cursor_command = (char*) calloc(1, 10);
+    char cursor_command[10] = {0};
 
-    strncat(cursor_command, "[", 2);
-    strncat(cursor_command, units, 8);
-    strncat(cursor_command, "A", 2);
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(units) <= 0) { return; }
+#endif
+
+    strncat(cursor_command, "[", 1);
+    strncat(cursor_command, units, 7);
+    strncat(cursor_command, "A", 1);
 
     vt_nsend(cursor_command, 10);
-    free(cursor_command); cursor_command = NULL;
 }
 
 void vt_move_cursor_down (char* units)
 {
-    char* cursor_command = (char*) calloc(1, 10);
+    char cursor_command[10] = {0};
 
-    strncat(cursor_command, "[", 2);
-    strncat(cursor_command, units, 8);
-    strncat(cursor_command, "B", 2);
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(units) <= 0) { return; }
+#endif
+
+    strncat(cursor_command, "[", 1);
+    strncat(cursor_command, units, 7);
+    strncat(cursor_command, "B", 1);
 
     vt_nsend(cursor_command, 10);
-    free(cursor_command); cursor_command = NULL;
 }
 
 void vt_move_cursor_left (char* units)
 {
-    char* cursor_command = (char*) calloc(1, 10);
+    char cursor_command[10] = {0};
 
-    strncat(cursor_command, "[", 2);
-    strncat(cursor_command, units, 8);
-    strncat(cursor_command, "C", 2);
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(units) <= 0) { return; }
+#endif
+
+    strncat(cursor_command, "[", 1);
+    strncat(cursor_command, units, 7);
+    strncat(cursor_command, "C", 1);
 
     vt_nsend(cursor_command, 10);
-    free(cursor_command); cursor_command = NULL;
 }
 
 void vt_move_cursor_right (char* units)
 {
-    char* cursor_command = (char*) calloc(1, 10);
+    char cursor_command[10] = {0};
 
-    strncat(cursor_command, "[", 2);
-    strncat(cursor_command, units, 8);
-    strncat(cursor_command, "D", 2);
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(units) <= 0) { return; }
+#endif
+
+    strncat(cursor_command, "[", 1);
+    strncat(cursor_command, units, 7);
+    strncat(cursor_command, "D", 1);
 
     vt_nsend(cursor_command, 10);
-    free(cursor_command); cursor_command = NULL;
 }
 
 void vt_move_cursor_xy (char* x, char* y)
 {
-    char *cursor_command = (char*) calloc(1,20);
+    char cursor_command[18] = {0};
 
-    strncat(cursor_command, "[", 2);
-    strncat(cursor_command, y, 8);
-    strncat(cursor_command, ";", 2);
-    strncat(cursor_command, x, 8);
-    strncat(cursor_command, "f", 2);
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(x) <= 0 || strlen(y) <= 0) { return; }
+#endif
 
-    vt_nsend(cursor_command, 20);
-    free(cursor_command); cursor_command = NULL;
+    strncat(cursor_command, "[", 1);
+    strncat(cursor_command, y, 7);
+    strncat(cursor_command, ";", 1);
+    strncat(cursor_command, x, 7);
+    strncat(cursor_command, "f", 1);
+
+    vt_nsend(cursor_command, 18);
 }
 
 void vt_scroll_up (void)
@@ -131,124 +146,163 @@ void vt_clear_screen (void)
 
 void vt_setcolor_4bit_fg (char* fg_code)
 {
-    char *color_command = (char*) calloc(1,6);
+    char color_command[6] = {0};
+
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(fg_code) <= 0) { return; }
+#endif
+
     color_command[0] = '[';
-    strncat(color_command, fg_code, 5);
-    strncat(color_command, "m", 2);
+    strncat(color_command, fg_code, 3);
+    strncat(color_command, "m", 1);
 
     vt_nsend(color_command, 6);
-    free(color_command); color_command = NULL;
 }
 
 /* This is redundant since fg and bg codes don't overlap */
 void vt_setcolor_4bit_bg (char* bg_code)
 {
-    char *color_command = (char*) calloc(1,6);
+    char color_command[6] = {0};
+
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(bg_code) <= 0) { return; }
+#endif
+
     color_command[0] = '[';
-    strncat(color_command, bg_code, 5);
-    strncat(color_command, "m", 2);
+    strncat(color_command, bg_code, 3);
+    strncat(color_command, "m", 1);
 
     vt_nsend(color_command, 6);
-    free(color_command); color_command = NULL;
 }
 
 void vt_setcolor_4bit (char* fg_code, char* bg_code)
 {
-    char *color_command = (char*) calloc(1,10);
+    char color_command[10] = {0};
+
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(fg_code) <= 0 || strlen(bg_code) <= 0) { return; }
+#endif
+
     color_command[0] = '[';
-    strncat(color_command, fg_code, 5);
-    strncat(color_command, ";", 2);
-    strncat(color_command, bg_code, 4);
-    strncat(color_command, "m", 2);
+    strncat(color_command, fg_code, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, bg_code, 3);
+    strncat(color_command, "m", 1);
 
     vt_nsend(color_command, 10);
-    free(color_command); color_command = NULL;
 }
 
 void vt_setcolor_8bit_fg (char* fg_code)
 {
-    char *color_command = (char*) calloc(1,12);
-    strncat(color_command, "[38;5;", 7);
-    strncat(color_command, fg_code, 4);
-    strncat(color_command, "m", 2);
+    char color_command[11] = {0};
 
-    vt_nsend(color_command, 12);
-    free (color_command); color_command = NULL;
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(fg_code) <= 0) { return; }
+#endif
+
+    strncat(color_command, "[38;5;", 6);
+    strncat(color_command, fg_code, 3);
+    strncat(color_command, "m", 1);
+
+    vt_nsend(color_command, 11);
 }
 
 void vt_setcolor_8bit_bg (char* bg_code)
 {
-    char *color_command = (char*) calloc(1,12);
-    strncat(color_command, "[48;5;", 7);
-    strncat(color_command, bg_code, 4);
-    strncat(color_command, "m", 2);
+    char color_command[11] = {0};
 
-    vt_nsend(color_command, 12);
-    free(color_command); color_command = NULL;
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(bg_code) <= 0) { return; }
+#endif
+
+    strncat(color_command, "[48;5;", 6);
+    strncat(color_command, bg_code, 3);
+    strncat(color_command, "m", 1);
+
+    vt_nsend(color_command, 11);
 }
 
 void vt_setcolor_8bit (char* fg_code, char* bg_code)
 { 
-    char *color_command = (char*) calloc(1,20);
-    strncat(color_command, "[38;5;", 7);
-    strncat(color_command, fg_code, 4);
-    strncat(color_command, ";48;5;", 7);
-    strncat(color_command, bg_code, 4);
-    strncat(color_command, "m", 2);
+    char color_command[20] = {0};
+
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(fg_code) <= 0 || strlen(bg_code)) { return; }
+#endif
+
+    strncat(color_command, "[38;5;", 6);
+    strncat(color_command, fg_code, 3);
+    strncat(color_command, ";48;5;", 6);
+    strncat(color_command, bg_code, 3);
+    strncat(color_command, "m", 1);
 
     vt_nsend(color_command, 20);
-    free(color_command); color_command = NULL;
 }
 
 void vt_setcolor_tru_fg (char* r, char* g, char* b)
 {
-    char *color_command = (char*) calloc(1,18);
-    strncat(color_command, "[38;2;", 7);
-    strncat(color_command, r, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, g, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, b, 4);
-    strncat(color_command, "m", 2);
+    char color_command[19] = {0};
 
-    vt_nsend(color_command, 18);
-    free(color_command); color_command = NULL;
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(r) <= 0 || strlen(g) <= 0 || strlen(b) <= 0) { return; }
+#endif
+
+    strncat(color_command, "[38;2;", 6);
+    strncat(color_command, r, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, g, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, b, 3);
+    strncat(color_command, "m", 1);
+
+    vt_nsend(color_command, 19);
 }
 
 void vt_setcolor_tru_bg (char* r, char* g, char* b)
 {
-    char *color_command = (char*) calloc(1,18);
-    strncat(color_command, "[48;2;", 7);
-    strncat(color_command, r, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, g, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, b, 4);
-    strncat(color_command, "m", 2);
+    char color_command[19] = {0};
 
-    vt_nsend(color_command, 18);
-    free(color_command); color_command = NULL;
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(r) <= 0 || strlen(g) <= 0 || strlen(b) <= 0) { return; }
+#endif
+
+    strncat(color_command, "[48;2;", 6);
+    strncat(color_command, r, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, g, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, b, 3);
+    strncat(color_command, "m", 1);
+
+    vt_nsend(color_command, 19);
 }
 
 void vt_setcolor_tru (char* r_fg, char* r_bg, char* g_fg, char* g_bg, char* b_fg, char* b_bg)
 {
-    char *color_command = (char*) calloc(1,40);
-    strncat(color_command, "[38;2;", 7);
-    strncat(color_command, r_fg, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, g_fg, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, b_fg, 4);
-    strncat(color_command, ";48;2;", 7);
-    strncat(color_command, r_bg, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, g_bg, 4);
-    strncat(color_command, ";", 2);
-    strncat(color_command, b_bg, 4);
-    strncat(color_command, "m", 2);
+    char color_command[36] = {0};
 
-    vt_nsend(color_command, 40);
-    free(color_command); color_command = NULL;
+#ifndef DISABLE_SAFETY_CHECK
+    if (strlen(r_fg) <= 0 || strlen(r_bg) <= 0 || 
+        strlen(g_fg) <= 0 || strlen(g_bg) <= 0 ||
+        strlen(b_fg) <= 0 || strlen(b_bg) <= 0) 
+    { return; }
+#endif
+
+    strncat(color_command, "[38;2;", 6);
+    strncat(color_command, r_fg, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, g_fg, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, b_fg, 3);
+    strncat(color_command, ";48;2;", 6);
+    strncat(color_command, r_bg, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, g_bg, 3);
+    strncat(color_command, ";", 1);
+    strncat(color_command, b_bg, 3);
+    strncat(color_command, "m", 1);
+
+    vt_nsend(color_command, 36);
 }
 
 void vt_bold_text (void)
@@ -290,12 +344,14 @@ vt_vec2* vt_get_cursor_pos (void)
     if (esc == ASCII_ESC && getc(inp) == '[')
     {
         char in = 0;
-        int input_buff_len = 10;
-        char *x_str = (char*) calloc(1, input_buff_len);
-        char *y_str = (char*) calloc(1, input_buff_len);
+
+#define INPUT_BUFF_LEN 10
+
+        char x_str[INPUT_BUFF_LEN] = {0};
+        char y_str[INPUT_BUFF_LEN] = {0};
         int index = 0;
 
-        while (in != ';' && in != 'R' && index < input_buff_len)
+        while (in != ';' && in != 'R' && index < INPUT_BUFF_LEN)
         {
             in = getc(inp);
             /* printf("Read: %c\n", in); */
@@ -303,8 +359,8 @@ vt_vec2* vt_get_cursor_pos (void)
 
             if (in == 'R')
             {
-                memcpy(y_str, x_str, input_buff_len);
-                memset(x_str, 0, input_buff_len);
+                memcpy(y_str, x_str, INPUT_BUFF_LEN);
+                memset(x_str, 0, INPUT_BUFF_LEN);
                 x_str[0] = ASCII_ZERO;
                 break;
             }
@@ -314,11 +370,11 @@ vt_vec2* vt_get_cursor_pos (void)
         }
 
         y_pos = atoi(y_str);
-        memset(y_str, 0, input_buff_len);
-        free(y_str); y_str = NULL;
+        memset(y_str, 0, INPUT_BUFF_LEN);
+
         index = 0;
 
-        if (x_str[0] != ASCII_ZERO) while (in != 'R' && index < input_buff_len)
+        if (x_str[0] != ASCII_ZERO) while (in != 'R' && index < INPUT_BUFF_LEN)
         {
             in = getc(inp);
             /* printf("Read: %c\n", in); */
@@ -328,10 +384,10 @@ vt_vec2* vt_get_cursor_pos (void)
         }
 
         x_pos = atoi(x_str);
-        memset(x_str, 0, input_buff_len);
-
-        free(x_str); x_str = NULL;
+        memset(x_str, 0, INPUT_BUFF_LEN);
     }
+
+#undef INPUT_BUFF_LEN
 
     else { return NULL; }
     
@@ -349,21 +405,22 @@ vt_vec2* vt_get_screen_size (void)
      * function just cheats the old fashioned way by telling the cursor to go to position
      * (999,999) then asking where the cursor actually ended up. */
 
-    char *old_x = (char*) calloc(1, 10);
-    char *old_y = (char*) calloc(1, 10);
+    char old_x[12] = {0};
+    char old_y[12] = {0};
     vt_vec2 *old_pos = vt_get_cursor_pos();
     vt_vec2 *new_pos = NULL;
 
     vt_move_cursor_xy("999", "999");
     new_pos = vt_get_cursor_pos();
-    
-    itoa(old_pos->x, old_x, 10);
-    itoa(old_pos->y, old_y, 10);
+
+    /*itoa(old_pos->x, old_x, 10);
+    itoa(old_pos->y, old_y, 10);*/
+
+    snprintf(old_x, 12, "%d", old_pos->x);
+    snprintf(old_y, 12, "%d", old_pos->y);
 
     vt_move_cursor_xy(old_x, old_y);
     free (old_pos); old_pos = NULL;
-    free (old_x); old_x = NULL;
-    free (old_y); old_y = NULL;
 
     return new_pos;
 }
