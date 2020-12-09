@@ -1,53 +1,15 @@
 /* COPYRIGHT 2018 BRYAN HALEY UNDER THE MIT LICENSE *
  * SEE LICENSE.MD FOR MORE INFORMATION              */
 
-#define F_CPU 16000000UL
-#define BAUD 9600
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <avr/io.h>
-#include <util/setbaud.h>
 #include "vterm.h"
 
 #define ASCII_VALID_START 0x20
 #define ASCII_VALID_END 0x7E
 
-/* UART setup is based on information from this article:
- * https://appelsiini.net/2011/simple-usart-with-avr-libc/
- * Visit that page for more information. */
-
-void uart_init(void) 
-{
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
-
-    #if USE_2X
-        UCSR0A |= _BV(U2X0);
-    #else
-        UCSR0A &= ~(_BV(U2X0));
-    #endif
-
-    UCSR0C = _BV(UCSZ01) | _BV(UCSZ00);
-    UCSR0B = _BV(RXEN0) | _BV(TXEN0);
-}
-
-void uart_putchar(char c, FILE *stream) 
-{
-    if (c == '\n')
-    { uart_putchar('\r', stream); }
-    loop_until_bit_is_set(UCSR0A, UDRE0);
-    UDR0 = c;
-}
-
-char uart_getchar(FILE *stream) 
-{
-    loop_until_bit_is_set(UCSR0A, RXC0);
-    return UDR0;
-}
-
-char* uart_getline(char* buff, int len)
+char* sh_getline(char* buff, int len)
 {
     int buff_index = 0;
     char in = 0;
@@ -56,11 +18,11 @@ char* uart_getline(char* buff, int len)
     memset(buff, 0, len);
 
     /* Keep getting input until we get the enter key */
-    while (buff_index < len && in != 0x0d)
+    while (buff_index < len && (in != '\n' && in != '\r'))
     {
         in = getchar();
 
-        /* Handle characters than can be displayed */
+        /* Handle characters that can be displayed */
         if (in >= ASCII_VALID_START && in <= ASCII_VALID_END)
         {
             /* Add them to the input buffer */
@@ -106,16 +68,6 @@ char* uart_getline(char* buff, int len)
 
 int main(void) 
 {
-    /* Bind UART to file streams */
-    FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-    FILE uart_input = FDEV_SETUP_STREAM(NULL, uart_getchar, _FDEV_SETUP_READ);
-    FILE uart_io = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
-
-    /* Bind UART file streams to stdin/stdout */
-    uart_init();
-    stdout = &uart_output;
-    stdin  = &uart_input;
-
     /* Create an input buffer for commands */
     char* input = (char*) calloc(1,100);
     int len = 100;
@@ -125,7 +77,7 @@ int main(void)
 
     /* clear the screen and reset cursor to get rid of old junk data */
     vt_clear_screen();
-    vt_move_cursor_xy(0,0);
+    vt_move_cursor_xy("0","0");
 
     printf("You can type with a working backspace, or use the arrow keys to move around.\n");
     printf("Available commands: %s%s",
@@ -135,12 +87,12 @@ int main(void)
     while(1)
     {
         printf("$ ");
-        uart_getline(input, len);
+        sh_getline(input, len);
 
         if (strcmp(input, "clear") == 0)
         {
             vt_clear_screen();
-            vt_move_cursor_xy(0,0);
+            vt_move_cursor_xy("0","0");
         }
 
         else if (strcmp(input, "help") == 0)
@@ -154,10 +106,10 @@ int main(void)
         {
             printf("Enter a foreground color code: ");
             char* fg_code = (char*) calloc(1,5);
-            uart_getline(fg_code, 5);
+            sh_getline(fg_code, 5);
             printf("Enter a background color code: ");
             char* bg_code = (char*) calloc(1,5);
-            uart_getline(bg_code, 5);
+            sh_getline(bg_code, 5);
 
             vt_setcolor_4bit(fg_code, bg_code);
             printf("Color test\n");
@@ -167,10 +119,10 @@ int main(void)
         {
             printf("Enter a foreground color code (0-255): ");
             char* fg_code = (char*) calloc(1,5);
-            uart_getline(fg_code, 5);
+            sh_getline(fg_code, 5);
             printf("Enter a background color code (0-255): ");
             char* bg_code = (char*) calloc(1,5);
-            uart_getline(bg_code, 5);
+            sh_getline(bg_code, 5);
 
             vt_setcolor_8bit(fg_code, bg_code);
             printf("Color test\n");
@@ -181,24 +133,24 @@ int main(void)
             printf("Setting foreground colors\n");
             printf("Enter a red color value (0-255): ");
             char* r_fg = (char*) calloc(1,4);
-            uart_getline(r_fg, 4);
+            sh_getline(r_fg, 4);
             printf("Enter a blue color value (0-255): ");
             char* g_fg = (char*) calloc(1,4);
-            uart_getline(g_fg, 4);
+            sh_getline(g_fg, 4);
             printf("Enter a green color value (0-255): ");
             char* b_fg = (char*) calloc(1,4);
-            uart_getline(b_fg, 4);
+            sh_getline(b_fg, 4);
 
             printf("\nSetting background colors\n");
             printf("Enter a red color value (0-255): ");
             char* r_bg = (char*) calloc(1,4);
-            uart_getline(r_bg, 4);
+            sh_getline(r_bg, 4);
             printf("Enter a blue color value (0-255): ");
             char* g_bg = (char*) calloc(1,4);
-            uart_getline(g_bg, 4);
+            sh_getline(g_bg, 4);
             printf("Enter a green color value (0-255): ");
             char* b_bg = (char*) calloc(1,4);
-            uart_getline(b_bg, 4);
+            sh_getline(b_bg, 4);
             
             vt_setcolor_tru(r_fg, r_bg, g_fg, g_bg, b_fg, b_bg);
             printf("Color test\n");
