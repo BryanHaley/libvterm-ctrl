@@ -144,6 +144,16 @@ void vt_clear_screen (void)
     vt_nsend("[2J", 3);
 }
 
+void vt_hide_cursor (void)
+{
+    vt_nsend("[?25l", 5);
+}
+
+void vt_show_cursor (void)
+{
+    vt_nsend("[?25h", 5);
+}
+
 void vt_setcolor_4bit_fg (char* fg_code)
 {
     char color_command[6] = {0};

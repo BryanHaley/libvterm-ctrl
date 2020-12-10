@@ -36,6 +36,9 @@ void vt_scroll_down (void);
 void vt_clear_line (void);
 void vt_clear_screen (void);
 
+void vt_hide_cursor (void);
+void vt_show_cursor (void);
+
 /* See https://en.wikipedia.org/wiki/ANSI_escape_code#Colors */
 void vt_setcolor_4bit_fg (char* fg_code);
 void vt_setcolor_4bit_bg (char* bg_code);
