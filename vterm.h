@@ -28,7 +28,7 @@ void vt_move_cursor_left (char* units);
 void vt_move_cursor_right (char* units);
 void vt_move_cursor_xy (char* x, char* y);
 
-vt_vec2* vt_get_cursor_pos (void);
+void vt_get_cursor_pos (vt_vec2 *pos);
 
 void vt_scroll_up (void);
 void vt_scroll_down (void);
@@ -59,7 +59,7 @@ void vt_invert_colors (void);
 void vt_reset_text_attributes (void);
 
 /* Special */
-vt_vec2* vt_get_screen_size (void);
+void vt_get_screen_size (vt_vec2 *pos);
 
 void vt_backspace (void);
 void vt_clear_space (void);

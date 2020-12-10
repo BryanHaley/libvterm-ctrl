@@ -331,10 +331,9 @@ void vt_reset_text_attributes (void)
 }
 
 /* TODO: fix this. only half works on nix */
-vt_vec2* vt_get_cursor_pos (void)
+void vt_get_cursor_pos (vt_vec2 *pos)
 {
     char esc = 0;
-    vt_vec2 *cursor_pos = NULL;
     int x_pos = 0, y_pos = 0;
  
     /* send the request to get the screen size */
@@ -390,17 +389,14 @@ vt_vec2* vt_get_cursor_pos (void)
 
 #undef INPUT_BUFF_LEN
 
-    else { return NULL; }
+    else return;
     
-    cursor_pos = (vt_vec2*) calloc(1, sizeof(vt_vec2));
-    cursor_pos->x = x_pos;
-    cursor_pos->y = y_pos;
-
-    return cursor_pos;
+    pos->x = x_pos;
+    pos->y = y_pos;
 }
 
 /* TODO: fix this. Segfaults on nix */
-vt_vec2* vt_get_screen_size (void)
+void vt_get_screen_size (vt_vec2 *pos)
 {
     /* There is no actual ANSI/ISO/VT-100 escape sequence to get the size of the terminal 
      * screen, and this library can't rely on an OS to exist to provide ioctl, so this
@@ -409,22 +405,22 @@ vt_vec2* vt_get_screen_size (void)
 
     char old_x[15] = {0};
     char old_y[15] = {0};
-    vt_vec2 *old_pos = vt_get_cursor_pos();
-    vt_vec2 *new_pos = NULL;
+    vt_vec2 old_pos, new_pos;
 
+    vt_get_cursor_pos(&old_pos);
     vt_move_cursor_xy("999", "999");
-    new_pos = vt_get_cursor_pos();
+    vt_get_cursor_pos(&new_pos);
 
     /*itoa(old_pos->x, old_x, 10);
     itoa(old_pos->y, old_y, 10);*/
 
-    sprintf(old_x, "%d", old_pos->x);
-    sprintf(old_y, "%d", old_pos->y);
+    sprintf(old_x, "%d", old_pos.x);
+    sprintf(old_y, "%d", old_pos.y);
 
     vt_move_cursor_xy(old_x, old_y);
-    free (old_pos); old_pos = NULL;
 
-    return new_pos;
+    pos->x = new_pos.x;
+    pos->y = new_pos.y;
 }
 
 void vt_backspace (void)
@@ -447,8 +443,11 @@ void vt_clear_space (void)
 void vt_fill_screen (char c)
 {
     int i = 0;
-    vt_vec2 *screen_size = vt_get_screen_size(); 
-    int num_spaces = screen_size->x * screen_size->y;
+    vt_vec2 screen_size;
+    int num_spaces;
+
+    vt_get_screen_size(&screen_size);
+    num_spaces = screen_size.x * screen_size.y;
 
     putc('\n', out);
     

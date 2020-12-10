@@ -193,16 +193,16 @@ int main(void)
         
         else if (strcmp(input, "cursor-pos") == 0)
         {
-            vt_vec2 *cursor_pos = vt_get_cursor_pos();
-            printf("Cursor position: (%d,%d)\n", cursor_pos->x, cursor_pos->y);
-            free(cursor_pos); cursor_pos = NULL;
+            vt_vec2 cursor_pos;
+            vt_get_cursor_pos(&cursor_pos);
+            printf("Cursor position: (%d,%d)\n", cursor_pos.x, cursor_pos.y);
         }
         
         else if (strcmp(input, "screen-size") == 0)
         {
-            vt_vec2 *screen_size = vt_get_screen_size();
-            printf("Screen size: %dx%d\n", screen_size->x, screen_size->y);
-            free(screen_size); screen_size = NULL;
+            vt_vec2 screen_size;
+            vt_get_screen_size(&screen_size);
+            printf("Screen size: %dx%d\n", screen_size.x, screen_size.y);
         }
 
         else if (strcmp(input, "fill") == 0)
