@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
+/* TODO: roll my own simple string-handling functions to remove these dependencies. 
+ * Not all MCUs provide string.h or other UNIX-like headers. */
+
 #include "vterm.h"
 
 #ifndef EMBEDDED
