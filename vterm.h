@@ -28,7 +28,7 @@ void vt_move_cursor_left (char* units);
 void vt_move_cursor_right (char* units);
 void vt_move_cursor_xy (char* x, char* y);
 
-void vt_get_cursor_pos (vt_vec2 *pos);
+void vt_get_cursor_pos (vt_vec2 *pos); /* Negative values indicate an invalid response. */
 
 void vt_scroll_up (void);
 void vt_scroll_down (void);

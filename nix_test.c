@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <termios.h>
 #include "vterm.h"
 
 #define ASCII_VALID_START 0x20
@@ -34,7 +35,7 @@ char* sh_getline(char* buff, int len)
         }
 
         /* Handle Backspace (Win/Lin) or Del (Mac) */
-        if (in == 0x7F || in == 0x08)
+        else if (in == 0x7F || in == 0x08)
         {
             vt_backspace();
             
@@ -44,9 +45,9 @@ char* sh_getline(char* buff, int len)
         }
 
         /* Handle escape sequences */
-        if (in == 0x1B && getchar() == 0x5B)
+        else if (in == 0x1B && getchar() == 0x5B)
         {
-            /* Handle arrow keys */
+            /* Handle Windows/Bash arrow keys */
             switch (getchar())
             {
                 case 0x41:
@@ -68,6 +69,15 @@ char* sh_getline(char* buff, int len)
 
 int main(void) 
 {
+    /* Set terminal to noncanon mode. This is important on desktop platforms as some commands 
+     * return output that we don't want the user to see, and it is necessary for getting arrow
+     * key input without needing to press enter. */
+    struct termios mode;
+
+    tcgetattr(0, &mode);
+    mode.c_lflag &= ~(ECHO | ICANON);
+    tcsetattr(0, TCSANOW, &mode);
+
     /* Create an input buffer for commands */
     char* input = (char*) calloc(1,100);
     int len = 100;
@@ -191,6 +201,8 @@ int main(void)
             printf("\x1b[38;2;40;177;249mTRUECOLOR\x1b[0m\n");
         }
         
+        /* Note: due to the nature of this primitive interface, it takes the cursor position after pressing enter,
+         * so the x position will pretty much always be 1. This shouldn't be an issue in other applications. */
         else if (strcmp(input, "cursor-pos") == 0)
         {
             vt_vec2 cursor_pos;

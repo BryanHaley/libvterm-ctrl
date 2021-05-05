@@ -6,6 +6,11 @@
 #include <stdlib.h>
 #include "vterm.h"
 
+#ifndef EMBEDDED
+    #include <sys/ioctl.h>
+    #include <unistd.h>
+#endif
+
 #define ASCII_ESC  0x1B
 #define ASCII_ZERO 0x30
 
@@ -340,7 +345,6 @@ void vt_reset_text_attributes (void)
     vt_nsend("[0m", 3);
 }
 
-/* TODO: fix this. only half works on nix */
 void vt_get_cursor_pos (vt_vec2 *pos)
 {
     char esc = 0;
@@ -357,57 +361,59 @@ void vt_get_cursor_pos (vt_vec2 *pos)
 
 #define INPUT_BUFF_LEN 10
 
-        char x_str[INPUT_BUFF_LEN] = {0};
-        char y_str[INPUT_BUFF_LEN] = {0};
+        char x_str[INPUT_BUFF_LEN] = {'\0'};
+        char y_str[INPUT_BUFF_LEN] = {'\0'};
         int index = 0;
 
-        while (in != ';' && in != 'R' && index < INPUT_BUFF_LEN)
+        while (in != ';' && index < INPUT_BUFF_LEN)
         {
             in = getc(inp);
-            /* printf("Read: %c\n", in); */
-            if (in == ';') { break; }
 
-            if (in == 'R')
-            {
-                memcpy(y_str, x_str, INPUT_BUFF_LEN);
-                memset(x_str, 0, INPUT_BUFF_LEN);
-                x_str[0] = ASCII_ZERO;
-                break;
-            }
+            /* sanity check */
+            if (in < '0' || in > '9') { continue; }
+
+            if (in == ';') { break; }
 
             y_str[index] = in;
             index++;
         }
 
         y_pos = atoi(y_str);
-        memset(y_str, 0, INPUT_BUFF_LEN);
-
         index = 0;
 
-        if (x_str[0] != ASCII_ZERO) while (in != 'R' && index < INPUT_BUFF_LEN)
+        while (in != 'R' && index < INPUT_BUFF_LEN)
         {
             in = getc(inp);
-            /* printf("Read: %c\n", in); */
+
+            /* sanity check */
+            if (in < '0' || in > '9') { continue; }
+
             if (in == 'R') { break; }
+
             x_str[index] = in;
             index++;
         }
 
         x_pos = atoi(x_str);
-        memset(x_str, 0, INPUT_BUFF_LEN);
     }
 
 #undef INPUT_BUFF_LEN
 
-    else return;
+    else
+    {
+        pos->x = -1;
+        pos->y = -1;
+        return;
+    }
     
     pos->x = x_pos;
     pos->y = y_pos;
 }
 
-/* TODO: fix this. Segfaults on nix */
 void vt_get_screen_size (vt_vec2 *pos)
 {
+#ifdef EMBEDDED
+
     /* There is no actual ANSI/ISO/VT-100 escape sequence to get the size of the terminal 
      * screen, and this library can't rely on an OS to exist to provide ioctl, so this
      * function just cheats the old fashioned way by telling the cursor to go to position
@@ -431,6 +437,18 @@ void vt_get_screen_size (vt_vec2 *pos)
 
     pos->x = new_pos.x;
     pos->y = new_pos.y;
+
+#else
+
+    /* When running on a UNIX-based system, use ioctl to get the terminal size. */
+
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+    pos->x = w.ws_col;
+    pos->y = w.ws_row;
+
+#endif
 }
 
 void vt_backspace (void)
