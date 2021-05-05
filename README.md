@@ -17,7 +17,7 @@ Any escape sequences not wrapped in functions by this library can be sent using 
 
 ## Compiling
 
-Libvterm-ctrl can be compiled as a static library, or you may simply add `vterm.h` and `vterm.c` to your project. 
+Libvterm-ctrl can be compiled as a static library, or you may simply add `vterm.h` and `vterm.c` to your project. Define the `LVTC_EMBEDDED` flag when compiling for a microcontroller.
 
 An example makefile and program are provided for an ATMEGA-328P and Desktop Mac/Linux (`avr_test.c, avr.make` and `nix_test.c, makefile` respectively). The avr test build environment assumes an AVR toolchain (namely `avr-gcc`, `avr-ar`, `avr-objcopy`, and optionally `avrdude` for flashing the program) is installed and available on the host machine. `run.sh` is provided as an example of flashing the program onto the microcontroller and using GNU Screen to receive input and output.
 

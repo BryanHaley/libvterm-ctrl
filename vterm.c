@@ -10,7 +10,7 @@
 
 #include "vterm.h"
 
-#ifndef EMBEDDED
+#ifndef LVTC_EMBEDDED
     #include <sys/ioctl.h>
     #include <unistd.h>
 #endif
@@ -416,7 +416,7 @@ void vt_get_cursor_pos (vt_vec2 *pos)
 
 void vt_get_screen_size (vt_vec2 *pos)
 {
-#ifdef EMBEDDED
+#ifdef LVTC_EMBEDDED
 
     /* There is no actual ANSI/ISO/VT-100 escape sequence to get the size of the terminal 
      * screen, and this library can't rely on an OS to exist to provide ioctl, so this
